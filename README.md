@@ -47,7 +47,8 @@ This project aims to construct a unified transcriptional landscape across multip
 
 ![Integration](Dataset-Integration.jpg)
 
-Integration of five human prefrontal cortex single-nucleus RNA-seq (snRNA-seq) datasets across neurological and psychiatric disorders.
+Integration of five human prefrontal cortex single-nucleus RNA-seq (snRNA-seq) datasets across neurological and psychiatric disorders
+
 ---
 
 ## 💻 Code
