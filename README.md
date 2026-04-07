@@ -71,7 +71,11 @@ We validated the annotation by examining canonical excitatory and inhibitory mar
 
 ![Cluster-level Integration](Individual_ClusterLevel_Integration.png)
 
-Cluster-level integration was performed by compressing cells into within-sample clusters and integrating their transcriptional signatures across datasets. The lower UMAPs represent our integrated data colored by cell type and study. The top schematic is adapted from the original methodological framework to summarize the analysis strategy.
+### Cluster-level Integration
+
+![Cluster-level Integration](ClusterLevel-Integration.png)
+
+In this step, the analytical representation is derived from similarity profiles across clusters, enabling a substantial reduction in dimensionality from 288,076 single cells to 1,659 cluster-level representations while preserving meaningful biological structure. By performing clustering at the individual level, batch effects are inherently minimized, and integration is achieved through the alignment of within-individual cluster signatures rather than direct merging of single-cell expression data. Consistently, UMAP visualizations reveal well-preserved neuronal identities and strong mixing across datasets, indicating effective mitigation of batch effects while maintaining biological variation. This framework builds upon a previously published approach (Zonca et al., bioRxiv, 2025), with all analyses and visualizations conducted as part of this study.
 
 --- 
 ## 💻 Code
