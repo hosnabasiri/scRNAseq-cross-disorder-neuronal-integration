@@ -64,7 +64,14 @@ Neuronal subtypes were consistently identified across datasets using both cluste
 
 ![Marker Validation](GeneMarkerValidation.png)
 
-We validated the annotation by examining canonical excitatory and inhibitory marker genes. The observed consistency between marker expression and assigned neuronal identities supports the robustness of the annotation
+We validated the annotation by examining canonical excitatory and inhibitory marker genes. The observed consistency between marker expression and assigned neuronal identities supports the robustness of the annotation.
+
+---
+ ### Cluster-level Integration
+
+![Cluster-level Integration](Individual_Integration.png)
+
+Cluster-level integration was performed by compressing cells into within-sample clusters and integrating their transcriptional signatures across datasets. The lower UMAPs represent our integrated data colored by cell type and study. The top schematic is adapted from the original methodological framework to summarize the analysis strategy.
 
 --- 
 ## 💻 Code
