@@ -57,10 +57,13 @@ The observed marker expression patterns match the assigned neuronal identities, 
 
 ![Cluster-level Integration](ClusterLevel-Integration.png)
 
+
 In this approach, cells were first grouped into clusters within each individual, and integration was then performed at the cluster level.
 
-This reduces the complexity of the data (from 288,076 cells to 1,659 clusters) while preserving meaningful biological structure.  
-By operating at the individual level before integration, batch effects are naturally reduced.
+The representation reduces data complexity (from 288,076 cells to 1,659 clusters) while preserving meaningful biological structure.  
+All embeddings and visualizations shown here were generated as part of this analysis. By operating at the individual level before integration, batch effects are naturally reduced.
+
+This strategy is based on a previously proposed framework (Zonca et al., bioRxiv, 2025), and was applied here to our datasets to evaluate its performance in cross-disorder integration.
 
 ---
 
