@@ -67,10 +67,6 @@ Neuronal subtypes were consistently identified across datasets using both cluste
 We validated the annotation by examining canonical excitatory and inhibitory marker genes. The observed consistency between marker expression and assigned neuronal identities supports the robustness of the annotation.
 
 ---
- ### Cluster-level Integration
-
-![Cluster-level Integration](Individual_ClusterLevel_Integration.png)
-
 ### Cluster-level Integration
 
 ![Cluster-level Integration](ClusterLevel-Integration.png)
