@@ -83,6 +83,19 @@ We constructed a pseudo-bulk expression dataset from individual-level clusters t
 Before correction, samples were strongly separated by study, reflecting batch effects introduced by different sequencing platforms and processing pipelines. After batch correction, samples from different studies became well mixed, while neuronal cell-type structure remained clearly preserved.
 
 This indicates that the approach effectively removes technical variation without disrupting biologically meaningful signals.
+
+---
+### Assortativity Analysis
+
+![Assortativity](assortativity.png)
+
+To quantitatively assess integration quality, we computed network assortativity with respect to study labels on the cluster–cluster similarity network.
+
+Before correction, high assortativity values indicated strong study-driven connectivity, meaning clusters preferentially connected to others from the same dataset. After batch correction, assortativity decreased substantially across all neuronal populations (Fig.).
+
+This reduction (∼67% on average) indicates that study-specific effects no longer dominate network organization. Instead, connectivity is primarily driven by biological similarity, confirming effective batch correction while preserving cell-type structure.
+
+
 --- 
 ## 💻 Code
 
