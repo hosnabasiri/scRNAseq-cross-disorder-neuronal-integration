@@ -4,7 +4,7 @@ The increasing availability of independently generated single-nucleus RNA-seq da
 
 To enable this, we integrated heterogeneous cortical datasets rather than analyzing each disorder in isolation, while addressing key challenges such as annotation inconsistency and study-specific batch effects.
 
-We compared two integration strategies: a conventional cell-level approach and an individual-level, cluster-based strategy that simplifies the representation of the data.
+We compared a conventional cell-level integration approach with a strategy that first clusters cells within each individual before integration.
 
 ---
 
@@ -38,7 +38,7 @@ Integration of five snRNA-seq datasets across neurological and psychiatric disor
 ![Annotation](Annotation.png)
 
 Cells were annotated using two complementary approaches: cluster-based annotation and network-driven label inference.  
-The high agreement between methods supports the consistency of neuronal identity assignment across datasets.
+The strong agreement between these methods supports consistent neuronal identity assignment across datasets.
 
 ---
 
@@ -46,20 +46,21 @@ The high agreement between methods supports the consistency of neuronal identity
 
 ![Marker Validation](GeneMarkerValidation.png)
 
-Annotation was further validated using canonical excitatory and inhibitory marker genes.  
-Consistent marker expression patterns confirmed the robustness of the annotation.
+We validated the annotation using canonical excitatory and inhibitory marker genes.  
+The observed marker expression patterns match the assigned neuronal identities, supporting the robustness of the annotation.
 
 ---
 
-## 🔹 Strategy 2: Individual-level (Cluster-based) Integration
+## 🔹 Strategy 2: Individual-level (Cluster-first) Integration
 
 ### Cluster-level Integration
 
 ![Cluster-level Integration](ClusterLevel-Integration.png)
 
-Cluster-level integration was performed using similarity profiles across clusters, reducing dimensionality from 288,076 cells to 1,659 cluster representations while preserving biological structure.
+In this approach, cells were first grouped into clusters within each individual, and integration was then performed at the cluster level.
 
-Clustering was performed at the individual level prior to integration, minimizing batch effects and enabling alignment of cluster-level transcriptional signatures rather than direct merging of single-cell data.
+This reduces the complexity of the data (from 288,076 cells to 1,659 clusters) while preserving meaningful biological structure.  
+By operating at the individual level before integration, batch effects are naturally reduced.
 
 ---
 
@@ -67,9 +68,9 @@ Clustering was performed at the individual level prior to integration, minimizin
 
 ![Pseudo-bulk](Bulk.png)
 
-Pseudo-bulk profiles were constructed from individual-level clusters to enable stable downstream analysis.
+Pseudo-bulk profiles were generated from individual-level clusters to enable stable downstream analysis.
 
-Batch correction reduced study-driven variation while preserving neuronal cell-type structure, resulting in improved mixing across datasets.
+Batch correction reduced study-driven variation while preserving neuronal cell-type structure, leading to improved mixing across datasets.
 
 ---
 
@@ -77,11 +78,12 @@ Batch correction reduced study-driven variation while preserving neuronal cell-t
 
 ![Assortativity](assortativity.png)
 
-Integration quality was evaluated using network assortativity with respect to study labels.
+To quantitatively assess integration quality, we computed network assortativity with respect to study labels.
 
-Before correction, high assortativity indicated strong study-driven structure. After correction, assortativity decreased substantially (~67%), indicating reduced batch effects.
+Before correction, high assortativity indicated that clusters were strongly grouped by study.  
+After correction, assortativity decreased substantially (~67%), indicating reduced batch effects.
 
-Connectivity within the network is therefore driven primarily by biological similarity rather than dataset origin.
+These results show that connectivity in the data is driven primarily by biological similarity rather than dataset origin.
 
 ---
 
