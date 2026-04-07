@@ -1,18 +1,18 @@
 # scRNAseq-cross-disorder-neuronal-integration
 
-We integrated five single-cell RNA-seq datasets using two strategies: cell-level and individual-level integration. We performed unified annotation based on clustering and network-driven approaches, and evaluated the integration using assortativity to assess preservation of neuronal structure.
+We integrated five human prefrontal cortex single-nucleus RNA-seq (snRNA-seq) datasets using two strategies: cell-level and individual-level integration. We performed unified annotation based on clustering and network-driven approaches, and evaluated the integration using assortativity to assess preservation of neuronal structure.
 
 ---
 
 ## 🧬 Project Overview
 
-This project aims to construct a unified transcriptional landscape across multiple brain disorders, with a specific focus on neuronal populations. By integrating heterogeneous single-cell datasets, we explore shared and disorder-specific molecular patterns across conditions.
+This project aims to construct a unified transcriptional landscape across multiple brain disorders, with a specific focus on neuronal populations. By integrating heterogeneous single-nucleus datasets, we explore shared and disorder-specific molecular patterns across conditions.
 
 ---
 
 ## ⚙️ Methods
 
-- Cell-level integration of single-cell RNA-seq datasets  
+- Cell-level integration of snRNA-seq datasets  
 - Individual-level integration across samples  
 - Cluster-based annotation  
 - Network-driven annotation  
@@ -23,7 +23,7 @@ This project aims to construct a unified transcriptional landscape across multip
 
 ## 📊 Data
 
-- 5 single-cell RNA-seq datasets  
+- 5 single-nucleus RNA-seq (snRNA-seq) datasets  
 - Brain region: Human prefrontal cortex  
 - Conditions:
   - Alzheimer’s disease  
@@ -36,30 +36,40 @@ This project aims to construct a unified transcriptional landscape across multip
 
 ## 📈 Results
 
-- Single-cell integration across datasets  
+- Single-nucleus integration across datasets  
 - Unified neuronal annotation  
 - Cluster-level integration consistency  
 - Pseudo-bulk integration and reduced assortativity  
 
 ---
 
-## 📊 Dataset Integration
+## 📊 Results Visualization
+
+### Dataset Integration
 
 ![Integration](Dataset-Integration.jpg)
 
-Integration of five human prefrontal cortex single-nucleus RNA-seq (snRNA-seq) datasets across neurological and psychiatric disorders
+Integration of five human prefrontal cortex snRNA-seq datasets across neurological and psychiatric disorders.
+
+---
+
+### Neuronal Annotation
+
+![Annotation](Annotation.png)
+
+Neuronal subtypes were consistently identified across datasets using both cluster-based and network-driven annotation strategies. The heatmap confirms high concordance between methods, supporting the robustness of the annotation.
 
 ---
 
 ## 💻 Code
 
-This repository includes an R Markdown-based workflow for single-cell data integration, annotation, and downstream analysis.
+This repository includes an R Markdown-based workflow for single-nucleus data integration, annotation, and downstream analysis.
 
 ---
 
 ## 🚀 Key Skills Demonstrated
 
-- Single-cell RNA-seq analysis  
+- Single-nucleus RNA-seq analysis  
 - Data integration  
 - Transcriptomics  
 - Network-based analysis  
