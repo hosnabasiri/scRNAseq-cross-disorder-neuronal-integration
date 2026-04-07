@@ -73,6 +73,16 @@ We validated the annotation by examining canonical excitatory and inhibitory mar
 
 In this step, the analytical representation is derived from similarity profiles across clusters, enabling a substantial reduction in dimensionality from 288,076 single cells to 1,659 cluster-level representations while preserving meaningful biological structure. By performing clustering at the individual level, batch effects are inherently minimized, and integration is achieved through the alignment of within-individual cluster signatures rather than direct merging of single-cell expression data. Consistently, UMAP visualizations reveal well-preserved neuronal identities and strong mixing across datasets, indicating effective mitigation of batch effects while maintaining biological variation. This framework builds upon a previously published approach (Zonca et al., bioRxiv, 2025), with all analyses and visualizations conducted as part of this study.
 
+---
+### Pseudo-bulk Batch Correction Across Studies
+
+![Pseudo-bulk](Bulk.png)
+
+We constructed a pseudo-bulk expression dataset from individual-level clusters to enable stable downstream analysis.
+
+Before correction, samples were strongly separated by study, reflecting batch effects introduced by different sequencing platforms and processing pipelines. After batch correction, samples from different studies became well mixed, while neuronal cell-type structure remained clearly preserved.
+
+This indicates that the approach effectively removes technical variation without disrupting biologically meaningful signals.
 --- 
 ## 💻 Code
 
