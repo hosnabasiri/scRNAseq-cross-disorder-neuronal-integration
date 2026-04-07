@@ -62,7 +62,7 @@ Neuronal subtypes were consistently identified across datasets using both cluste
 ---
 ### Marker-based Validation
 
-![Marker Validation](marker.png)
+![Marker Validation](GeneMarkerValidation.png)
 
 We validated the annotation by examining canonical excitatory and inhibitory marker genes. The observed consistency between marker expression and assigned neuronal identities supports the robustness of the annotation
 
