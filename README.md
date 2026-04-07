@@ -60,7 +60,13 @@ Integration of five human prefrontal cortex snRNA-seq datasets across neurologic
 Neuronal subtypes were consistently identified across datasets using both cluster-based and network-driven annotation strategies. The heatmap confirms high concordance between methods, supporting the robustness of the annotation.
 
 ---
+### Marker-based Validation
 
+![Marker Validation](marker.png)
+
+We validated the annotation by examining canonical excitatory and inhibitory marker genes. The observed consistency between marker expression and assigned neuronal identities supports the robustness of the annotation
+
+--- 
 ## 💻 Code
 
 This repository includes an R Markdown-based workflow for single-nucleus data integration, annotation, and downstream analysis.
