@@ -69,7 +69,7 @@ We validated the annotation by examining canonical excitatory and inhibitory mar
 ---
  ### Cluster-level Integration
 
-![Cluster-level Integration](Individual_Integration.png)
+![Cluster-level Integration](Individual_ClusterLevel_Integration.png)
 
 Cluster-level integration was performed by compressing cells into within-sample clusters and integrating their transcriptional signatures across datasets. The lower UMAPs represent our integrated data colored by cell type and study. The top schematic is adapted from the original methodological framework to summarize the analysis strategy.
 
