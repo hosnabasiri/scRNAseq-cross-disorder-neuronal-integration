@@ -1,0 +1,323 @@
+
+# Data preparation and integrated neuronal object construction
+# This script loads multiple brain snRNA-seq datasets,
+# extracts neuronal populations, identifies shared genes,
+# and constructs an integrated ACTIONetExperiment object
+# with relevant cell-level metadata.
+
+
+# DataSet preparation for integrated neuronal object
+##reading
+```{r}
+
+Alzheimer_ace <- readRDS("path/to/MathysDavila2019_AD.sce.rds")
+MDD_ace <- readRDS("path/to/Nagy2020_MDD_PFC_snRNA.ace.rds")
+MS_ace <- readRDS("path/to/Schirmer2019_MS.sce.rds")
+autism_ace <- readRDS("path/to/Velmeshev2019_autism.sce.rds")
+Jorstad_ace <- readRDS("path/to/Jorstad2023.PFC.sce.rds")
+MDD_ace <- as.SingleCellExperiment(ace = MDD_ace)
+```
+
+
+##separating the Neurons
+```{r}
+#Alzheimer
+unique(Alzheimer_ace$cluster.name)
+Alzheimer_cells <- c("Ex7","Ex2","Ex1","Ex4","Ex8","Ex6","Ex3","Ex5","Ex10",
+                      "In5","In3","In1","In2","In4" )
+Alzheimer_Neurons <-  Alzheimer_ace[,Alzheimer_ace$cluster.name %in% Alzheimer_cells]
+
+#MDD
+unique(MDD_ace$reported.celltype)
+MDD_Neurons <- MDD_ace[,MDD_ace$reported.celltype %in% c("Inhib","Ex")]
+
+#MS
+unique(MS_ace$cell_type)
+Ms_cells <- c("EN-L5-6", "EN-L2-3-MS", "IN-PV", "EN-L4", "EN-MIX",
+               "IN-SST", "IN-VIP", "EN-L2-3-Cntl", "IN-SV2C", "EN-PYR")
+Ms_Neurons <- MS_ace[,MS_ace$cell_type %in% Ms_cells]
+
+#autism
+unique(autism_ace$cluster)
+autism_cells <- c("Neu-NRGN-II", "L5/6", "IN-VIP", "L5/6-CC", 
+                         "IN-SV2C", "L2/3", "IN-PV", "IN-SST", "Neu-mat", "Neu-NRGN-I", "L4")
+
+autism_Neurons <-  autism_ace[ , autism_ace$cluster %in% autism_cells]
+autism_Neurons$cluster <- droplevels(autism_Neurons$cluster)
+table(autism_Neurons$cluster)
+
+#Jorstad
+unique(Jorstad_ace$cell_type)
+Jorstad_cells <- c("Lamp5", "Sncg", "Vip", "Lamp5 Lhx6", "Pax6", "L5 ET", "L5/6 NP", 
+             "L6 CT", "L6b", "L2/3 IT", "L4 IT", "L6 IT", "L5 IT", "L6 IT Car3", 
+             "Chandelier", "Pvalb", "Sst", "Sst Chodl")
+Jorstad_Neurons <- Jorstad_ace[,Jorstad_ace$cell_type %in% Jorstad_cells]
+
+```
+
+##find similar genes
+```{r}
+common_genes <- intersect(rownames(autism_Neurons),
+                          intersect(rownames(Ms_Neurons), 
+                                    intersect(rownames(MDD_Neurons),
+                                              intersect(rownames(Alzheimer_Neurons), rownames(Jorstad_Neurons))
+                                    )
+                          )
+)
+common_genes
+length(common_genes)
+```
+
+
+##make an ACTIONet experiment
+```{r}
+REneurons_ace <- ACTIONetExperiment::ACTIONetExperiment(
+  assays = list(
+    counts = cbind(
+      counts(autism_Neurons)[common_genes, ],
+      counts(Ms_Neurons)[common_genes, ],
+      counts(MDD_Neurons)[common_genes, ],
+      counts(Alzheimer_Neurons)[common_genes, ],
+      counts(Jorstad_Neurons)[common_genes, ]
+    )
+  )
+)
+```
+
+##TAG
+```{r}
+#ASD
+ASDtag <- paste0(autism_Neurons$cell,"_ASD")
+length(autism_Neurons$cell)
+
+#MS
+Ms_Neurons$cell
+MStag <- paste0(Ms_Neurons$cell,"_MS")
+
+#MDD
+MDD_Neurons$barcode
+MDDtag <- paste0(MDD_Neurons$barcode,"_MDD")
+
+#AD
+Alzheimer_Neurons$TAG
+ADtag <- paste0(Alzheimer_Neurons$TAG,"_AD")
+
+#JORSTAD
+Jorstad_Neurons$cell_ID
+JORStag <- paste0(Jorstad_Neurons$cell_ID,"_JORS")
+length(JORStag)
+
+CellTAGs <- c(ASDtag, MStag, MDDtag, ADtag, JORStag)
+length(CellTAGs)
+REneurons_ace$CellTAGs <- CellTAGs
+```
+
+##Diagnosis 
+```{r}
+#Alzheimer_Neurons
+Alzheimer_Neurons$AD.group[Alzheimer_Neurons$AD.group %in% c("Mod-Severe-AD", "Pre-Mild-AD")] <- "AD"
+Alzheimer_Neurons$AD.group[Alzheimer_Neurons$AD.group %in% "Non-AD"] <- "Control"
+
+ADdiagnosis <- Alzheimer_Neurons$AD.group
+class(ADdiagnosis)
+table(ADdiagnosis)
+
+#MDD_Neurons
+table(MDD_Neurons$clinical.phenotype)
+MDD_Neurons$clinical.phenotype[MDD_Neurons$clinical.phenotype %in% "Suicide"] <- "MDD"
+
+MDDdiagnosis <- MDD_Neurons$clinical.phenotype
+table(MDDdiagnosis)
+
+#Ms_Neurons
+table(Ms_Neurons$diagnosis)
+MSdiagnosis <- Ms_Neurons$diagnosis
+
+#autism_Neurons(ASD)
+table(autism_Neurons$diagnosis)
+ASDdiagnosis <- autism_Neurons$diagnosis
+table(ASDdiagnosis)
+
+#jorstad 
+JORSdiagnosis <- rep("Control", length(Jorstad_Neurons$cell_type))
+
+Diagnosis <- c(ASDdiagnosis, MSdiagnosis, MDDdiagnosis, ADdiagnosis, JORSdiagnosis)
+length(Diagnosis)
+REneurons_ace$Diagnosis <- Diagnosis
+```
+
+##Cell_type
+```{r}
+length(autism_Neurons$cluster)
+autism_NeuronsCELLtype <- autism_Neurons$cluster
+autism_neurons <- rep("autism_Neurons", length(autism_Neurons$cluster))
+
+length(Ms_Neurons$cell_type)
+Ms_neuronsCELLtype <- Ms_Neurons$cell_type
+Ms_neurons <- rep("Ms_Neurons", length(Ms_Neurons$cell_type))
+
+length(MDD_Neurons$reported.celltype)
+MDD_neuronsCELLtype <- MDD_Neurons$reported.celltype
+MDD_neurons <- rep("MDD_Neurons", length(MDD_Neurons$reported.celltype))
+
+length(Alzheimer_Neurons$cluster.name)
+Alzheimer_neuronsCELLtype <- Alzheimer_Neurons$cluster.name
+Alzheimer_neurons <- rep("Alzheimer_Neurons", length(Alzheimer_Neurons$cluster.name))
+
+length(Jorstad_Neurons$cell_type)
+Jorstad_NeuronCelltype <- Jorstad_Neurons$cell_type
+Jorstad_neurons <- rep("Jorstad_Neurons", length(Jorstad_Neurons$cell_type))
+```
+
+## Metadata assignment
+```{r}
+REneurons_ace$Disease <- c(autism_neurons, Ms_neurons, MDD_neurons, Alzheimer_neurons, Jorstad_neurons)
+
+REneurons_ace$Cell.Type <- c(
+  as.vector(autism_NeuronsCELLtype),
+  as.vector(Ms_neuronsCELLtype),
+  as.vector(MDD_neuronsCELLtype),
+  as.vector(Alzheimer_neuronsCELLtype),
+  as.vector(Jorstad_NeuronCelltype)
+)
+
+REneurons_ace$Diagnosis <- c(
+  as.vector(ASDdiagnosis),
+  as.vector(MSdiagnosis),
+  as.vector(MDDdiagnosis),
+  as.vector(ADdiagnosis),
+  as.vector(JORSdiagnosis)
+)
+
+REneurons_ace$CellTAGs <- c(ASDtag, MStag, MDDtag, ADtag, JORStag)
+
+Jorstad_NA <- rep("NA", length(REneurons_ace$Cell.Type) - length(Jorstad_NeuronCelltype))
+REneurons_ace$Jorstad <- c(as.vector(Jorstad_NA), as.vector(Jorstad_NeuronCelltype))
+```
+
+##Individual 
+```{r}
+#autism individual
+colData(autism_Neurons)
+table(autism_Neurons$individual, autism_Neurons$age)
+
+unique(REneurons_ace$Disease)
+autism_TAGs <- REneurons_ace$CellTAGs[REneurons_ace$Disease == "autism_Neurons"]
+unique(REneurons_ace$CellTAGs)
+dim(autism_Neurons)
+length(autism_TAGs)
+orig_autism <- sub("_ASD", "", autism_TAGs)
+unique(orig_autism == autism_Neurons$cell)
+
+autism_individual <- autism_Neurons$individual[match(orig_autism, autism_Neurons$cell)]
+length(autism_individual)
+length(autism_Neurons$cell)
+length(autism_TAGs)
+autism_individual <- paste0("ASD_", autism_individual)
+
+#MS individual
+colData(Ms_Neurons)
+table(Ms_Neurons$sample, Ms_Neurons$age)
+
+unique(REneurons_ace$Disease)
+MS_TAGs <- REneurons_ace$CellTAGs[REneurons_ace$Disease == "Ms_Neurons"]
+dim(Ms_Neurons)
+length(MS_TAGs)
+orig_MS <- sub("_MS(?!.*_MS)", "", MS_TAGs, perl = TRUE)
+length(orig_MS)
+length(Ms_Neurons$cell)
+unique(orig_MS == Ms_Neurons$cell)
+unique(orig_MS %in% Ms_Neurons$cell)
+unique(Ms_Neurons$sample)
+colData(Ms_Neurons)
+
+MS_individual <- Ms_Neurons$sample[match(orig_MS, Ms_Neurons$cell)]
+length(autism_individual)
+length(autism_TAGs)
+MS_individual <- paste0("MS_", MS_individual)
+
+#MDD individual
+colData(MDD_Neurons)
+table(MDD_Neurons$subject.id, MDD_Neurons$batch)
+
+unique(REneurons_ace$Disease)
+MDD_TAGs <- REneurons_ace$CellTAGs[REneurons_ace$Disease == "MDD_Neurons"]
+orig_MDD <- sub("_MDD", "", MDD_TAGs)
+dim(MDD_Neurons)
+length(MDD_TAGs)
+length(orig_MDD)
+
+MDD_individual <- MDD_Neurons$subject.id[match(orig_MDD, MDD_Neurons$barcode)]
+length(MDD_individual)
+length(orig_MDD)
+MDD_individual <- paste0("MDD_", MDD_individual)
+
+#Alzheimer individual
+unique(REneurons_ace$Disease)
+Alzheimer_TAGs <- REneurons_ace$CellTAGs[REneurons_ace$Disease == "Alzheimer_Neurons"]
+orig_Alzheimer <- sub("_AD", "", Alzheimer_TAGs)
+length(Alzheimer_TAGs)
+length(orig_Alzheimer)
+unique(orig_Alzheimer == Alzheimer_Neurons$TAG)
+
+Alzheimer_individual <- Alzheimer_Neurons$age_bl[match(orig_Alzheimer, Alzheimer_Neurons$TAG)]
+length(Alzheimer_individual)
+length(orig_Alzheimer)
+Alzheimer_individual <- paste0("AD_", Alzheimer_individual)
+
+#Jorstad individual
+unique(REneurons_ace$Disease)
+Jorstad_TAGs <- REneurons_ace$CellTAGs[REneurons_ace$Disease == "Jorstad_Neurons"]
+orig_Jorstad <- sub("_JORS", "", Jorstad_TAGs)
+length(Alzheimer_TAGs)
+length(orig_Alzheimer)
+unique(orig_Jorstad == Jorstad_Neurons$cell_ID)
+colData(Jorstad_Neurons)
+
+Jorstad_individual <- Jorstad_Neurons$batch[match(orig_Jorstad, Jorstad_Neurons$cell_ID)]
+length(Jorstad_individual)
+length(orig_Jorstad)
+Jorstad_individual <- paste0("Jors_", Jorstad_individual)
+
+#make one vector
+Individual <- c(autism_individual, MS_individual, MDD_individual, Alzheimer_individual, Jorstad_individual)
+saveRDS(Individual, "outputs/Individual.RDS")
+
+unique(Individual)
+length(Individual)
+length(REneurons_ace$Cell.Type)
+REneurons_ace$Individual <- Individual
+```
+
+
+##Double_Check
+```{r}
+table(REneurons_ace$Disease)
+
+#ASD
+table(REneurons_ace$Cell.Type[which(REneurons_ace$Disease == "autism_Neurons")])
+table(autism_Neurons$cluster)
+table(autism_Neurons$cluster) == table(REneurons_ace$Cell.Type[which(REneurons_ace$Disease == "autism_Neurons")])
+
+#MS
+table(REneurons_ace$Cell.Type[which(REneurons_ace$Disease == "Ms_Neurons")])
+table(Ms_Neurons$cell_type)
+table(Ms_Neurons$cell_type) == table(REneurons_ace$Cell.Type[which(REneurons_ace$Disease == "Ms_Neurons")])
+
+#MDD
+table(REneurons_ace$Cell.Type[which(REneurons_ace$Disease == "MDD_Neurons")])
+table(MDD_Neurons$reported.celltype)
+table(MDD_Neurons$reported.celltype) == table(REneurons_ace$Cell.Type[which(REneurons_ace$Disease == "MDD_Neurons")])
+
+#AD
+table(REneurons_ace$Cell.Type[which(REneurons_ace$Disease == "Alzheimer_Neurons")])
+table(Alzheimer_Neurons$cluster.name)
+table(Alzheimer_Neurons$cluster.name) == table(REneurons_ace$Cell.Type[which(REneurons_ace$Disease == "Alzheimer_Neurons")])
+
+#JORS
+table(REneurons_ace$Cell.Type[which(REneurons_ace$Disease == "Jorstad_Neurons")])
+table(Jorstad_Neurons$cell_type)
+table(as.vector(Jorstad_Neurons$cell_type)) == table(REneurons_ace$Cell.Type[which(REneurons_ace$Disease == "Jorstad_Neurons")])
+```
+
+
