@@ -92,7 +92,16 @@ These results show that connectivity in the data is driven primarily by biologic
 
 ## 💻 Code
 
-This repository includes an R Markdown-based workflow for single-nucleus data integration, annotation, and downstream analysis.
+This repository provides a structured R Markdown pipeline for cross-disease single-nucleus RNA-seq analysis, including:
+
+- Integration of multiple neurological and psychiatric datasets (ASD, MS, MDD, AD, Jorstad reference)
+- Cell-level and individual-level analyses using ACTIONet
+- Cluster annotation based on fold-change signatures and reference mapping
+- Construction of pseudobulk profiles for downstream comparisons
+- Batch effect correction using ComBat-seq while preserving biological covariates
+- Network-based evaluation of integration quality using assortativity analysis
+
+All analyses are organized into step-by-step scripts for full reproducibility.
 
 ---
 
