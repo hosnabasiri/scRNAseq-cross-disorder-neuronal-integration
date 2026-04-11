@@ -1,0 +1,195 @@
+
+# Individual-level ACTIONet analysis
+# This script splits the integrated neuronal object by disease
+# and then runs ACTIONet separately for each individual sample
+# to obtain individual-level cluster representations.
+
+# REneurons_ace is the integrated neuronal object before individual-level ACTIONet analysis.
+
+#Running ACTIONet_MS
+```{r}
+unique(REneurons_ace$Disease)
+REneurons_MS <- REneurons_ace[,REneurons_ace$Disease == "Ms_Neurons" ]
+unique(REneurons_MS$Individual)
+unique(colData(REneurons_MS)[,"Individual"])
+colData(REneurons_ace)
+
+
+MS_individual <- unique(colData(REneurons_MS)[,"Individual"])
+MS_ACTIONet_run <- setNames(
+      lapply(MS_individual, function(individual_i) {
+
+       obj_i <- REneurons_MS[, colData(REneurons_MS)$Individual == individual_i, drop = FALSE]
+
+         x <- ACTIONet::normalize.ace(obj_i)
+         x <- ACTIONet::reduce.ace(x)
+         x <- ACTIONet::runACTIONet(x, thread_no = 1)
+         x <- ACTIONet::clusterCells(x)
+   return(x)
+    }
+  ), 
+MS_individual
+ )
+saveRDS(MS_ACTIONet_run, "path/to/MS_ACTIONet_run.rds")
+MS_ACTIONet_run <- setNames(MS_ACTIONet_run,MS_individual)
+#MS_ACTIONet_run <- readRDS('path/to/MS_ACTIONet_run.rds')
+
+#MS
+#MS_ACTIONet_run <- lapply(names(MS_ACTIONet_run), function(id){
+    #obj <- MS_ACTIONet_run[[id]]
+     # obj$leiden <- paste0(id, "_c", obj$leiden)
+       #obj})
+
+#MS_ACTIONet_run <- lapply(names(MS_ACTIONet_run), function(id){
+   #obj <- MS_ACTIONet_run[[id]]
+     #obj$leiden <- sub("^.*_c", "", obj$leiden)
+      #obj})
+
+
+```
+
+#Running ACTIONet_ASD
+```{r}
+
+REneurons_autism <- REneurons_ace[,REneurons_ace$Disease == "autism_Neurons" ]
+unique(REneurons_autism$Individual)
+unique(colData(REneurons_autism)[,"Individual"])
+colData(REneurons_ace)
+
+
+ASD_individual <- unique(colData(REneurons_autism)[,"Individual"])
+ASD_ACTIONet_run <- setNames(
+      lapply(ASD_individual, function(individual_i) {
+
+       obj_i <- REneurons_autism[, colData(REneurons_autism)$Individual == individual_i, drop = FALSE]
+
+         x <- ACTIONet::normalize.ace(obj_i)
+         x <- ACTIONet::reduce.ace(x)
+         x <- ACTIONet::runACTIONet(x, thread_no = 1)
+         x <- ACTIONet::clusterCells(x)
+   return(x)
+    }
+  ), 
+ASD_individual
+ )
+ASD_ACTIONet_run <- setNames(ASD_ACTIONet_run,ASD_individual)
+#saveRDS(ASD_ACTIONet_run,'path/to/ASD_ACTIONet_run.rds')
+
+#ASD_ACTIONet_run <- readRDS('path/to/ASD_ACTIONet_run.rds')
+
+
+#ASD_ACTIONet_run <- lapply(names(ASD_ACTIONet_run), function(id){
+
+#obj <- ASD_ACTIONet_run[[id]]
+#obj$leiden <- sub("^.*_c", "", obj$leiden)
+ #obj})
+
+#ASD
+#ASD_ACTIONet_run <- lapply(names(ASD_ACTIONet_run), function(id){
+
+ # obj <- ASD_ACTIONet_run[[id]]
+#obj$leiden <- paste0(id, "_c", obj$leiden)
+# obj})
+```
+
+
+
+#Running ACTIONet_MDD
+```{r}
+unique(REneurons_ace$Disease)
+REneurons_MDD <- REneurons_ace[,REneurons_ace$Disease == "MDD_Neurons" ]
+unique(REneurons_MDD$Individual)
+unique(colData(REneurons_MDD)[,"Individual"])
+colData(REneurons_ace)
+
+
+MDD_individual <- unique(colData(REneurons_MDD)[,"Individual"])
+MDD_ACTIONet_run <- setNames(
+      lapply(MDD_individual, function(individual_i) {
+
+       obj_i <- REneurons_MDD[, colData(REneurons_MDD)$Individual == individual_i, drop = FALSE]
+
+         x <- ACTIONet::normalize.ace(obj_i)
+         x <- ACTIONet::reduce.ace(x)
+         x <- ACTIONet::runACTIONet(x, thread_no = 1)
+         x <- ACTIONet::clusterCells(x)
+   return(x)
+    }
+  ), 
+MDD_individual
+ )
+saveRDS(MDD_ACTIONet_run,'path/to/MDD_ACTIONet_run.rds')
+#MDD_ACTIONet_run <- readRDS('path/to/MDD_ACTIONet_run.rds')
+```
+
+
+```{r}
+#MDD
+#MDD_ACTIONet_run <- lapply(names(MDD_ACTIONet_run), function(id){
+ # obj <- MDD_ACTIONet_run[[id]]
+  #obj$leiden <- paste0(id, "_c", obj$leiden)
+ # obj})
+#MDD_ACTIONet_run <- setNames(MDD_ACTIONet_run,MDD_individual)
+```
+
+
+
+
+
+
+#Running ACTIONet_AD
+```{r}
+
+unique(REneurons_ace$Disease)
+REneurons_AD <- REneurons_ace[,REneurons_ace$Disease == "Alzheimer_Neurons" ]
+unique(REneurons_AD$Individual)
+unique(colData(REneurons_AD)[,"Individual"])
+colData(REneurons_ace)
+
+
+AD_individual <- unique(colData(REneurons_AD)[,"Individual"])
+AD_ACTIONet_run <- setNames(
+      lapply(AD_individual, function(individual_i) {
+
+       obj_i <- REneurons_AD[, colData(REneurons_AD)$Individual == individual_i, drop = FALSE]
+
+         x <- ACTIONet::normalize.ace(obj_i)
+         x <- ACTIONet::reduce.ace(x)
+         x <- ACTIONet::runACTIONet(x, thread_no = 1)
+         x <- ACTIONet::clusterCells(x)
+   return(x)
+    }
+  ), 
+AD_individual
+ )
+
+AD_ACTIONet_run <- lapply(names(AD_ACTIONet_run), function(id){
+  obj <- AD_ACTIONet_run[[id]]
+  obj$leiden <- paste0(id, "_c", obj$leiden)
+  obj 
+})
+
+#setNames
+AD_ACTIONet_run <- setNames(AD_ACTIONet_run, AD_individual)
+
+#saveRDS(AD_ACTIONet_run,'path/to/AD_ACTIONet_run.rds')
+# AD_ACTIONet_run <- readRDS("path/to/AD_ACTIONet_run.rds") 
+
+#AD
+#AD_ACTIONet_run <- lapply(names(AD_ACTIONet_run), function(id){
+   #obj <- AD_ACTIONet_run[[id]]
+   # obj$leiden <- paste0(id, "_c", obj$leiden)
+     #obj })
+
+
+
+
+
+#AD
+#AD_ACTIONet_run <- lapply(names(AD_ACTIONet_run), function(id){
+  #obj <- AD_ACTIONet_run[[id]]
+    #obj$leiden <- sub("^.*_c", "", obj$leiden)
+      # obj})
+```
+
+

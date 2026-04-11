@@ -1,0 +1,88 @@
+# Cell-level integration and annotation
+# This script runs ACTIONet on the integrated neuronal object,
+# performs batch correction and label inference,
+# and generates visualization and marker-based validation plots.
+
+
+
+#Cell-level analysis after integration
+##load integrated object
+```{r}
+neurons_ace <- readRDS("path/to/neurons_ace.rds")
+```
+
+#Running ACTIONet
+```{r}
+neurons_ace <- ACTIONet::normalize.ace(neurons_ace) 
+neurons_ace <- ACTIONet::reduce.and.batch.correct.ace.Harmony(neurons_ace, batch_attr = 'Disease')
+neurons_ace <- ACTIONet::runACTIONet(neurons_ace, thread_no = 1)
+neurons_ace$Jorstad[which(neurons_ace$Jorstad == 'NA')] <- NA
+neurons_ace <- ACTIONet::infer.missing.cell.labels(neurons_ace, 'Jorstad')
+neuronsCLUSTER_ace <- ACTIONet::clusterCells(neurons_ace)
+
+
+```
+
+
+##plotting
+```{r}
+unique(neurons_ace$Disease)
+
+
+CellTypePlot  <- plot.ACTIONet(neurons_ace, label_attr = 'Cell.Type', trans_attr = 'node_centrality')
+ggsave(filename = "figures/CellType.png",
+                plot = CellTypePlot, width = 10, height = 10)
+
+
+DiseasePlot <- plot.ACTIONet(neurons_ace, label_attr = 'Disease', trans_attr = 'node_centrality')
+ggsave(filename = "figures/Disease.png",
+                plot = DiseasePlot, width = 10, height = 10)
+
+InferredCellTypePlot <- plot.ACTIONet(neurons_ace, label_attr = 'Inferred.Cell.Type', trans_attr = 'node_centrality')
+
+ggsave(filename = "figures/InferredCellType.png", 
+            plot = InferredCellTypePlot, width = 10, height = 10)
+
+JorstadPlot <- plot.ACTIONet(neurons_ace, label_attr = 'Jorstad', trans_attr = 'node_centrality')
+ggsave(filename = "figures/Jorstad.png",
+             plot = JorstadPlot, width = 10, height = 10)
+
+```
+
+##Cheking some Markers
+```{r}
+
+VIPMarkers <- ACTIONet::visualize.markers(neurons_ace,markers = "VIP")
+ggsave(filename = "figures/VIPMarkers.png", plot = VIPMarkers, width = 10, height = 10)
+
+SSTMarkers <- ACTIONet::visualize.markers(neurons_ace,markers = "SST")
+ggsave(filename = "figures/SSTMarkers.png", plot = SSTMarkers, width = 10, height = 10)
+
+CBLN2Markers <- ACTIONet::visualize.markers(neurons_ace,markers = "CBLN2")
+ggsave(filename = "figures/CBLN2Markers.png", plot = CBLN2Markers, width = 10, height = 10)
+```
+
+##table
+```{r}
+#You should divide each row of that matrix by the total number of cells of that disease
+tab <- table(neurons_ace$Disease,neurons_ace$Inferred.Cell.Type)
+unique(neurons_ace$Inferred.Cell.Type)
+
+tab_norm <- apply(tab, 1, function(x) {
+  x / sum(x)
+})
+
+#normalizing based on the rowSums 
+dim(tab_norm)
+TabNorm_rows <- lapply(1:nrow(tab_norm), function(index){
+  tab_norm[index,] / rowSums(tab_norm)[index]
+})
+TabNorm_rows_Matrix <- do.call(rbind, TabNorm_rows)
+rownames(TabNorm_rows_Matrix) <- rownames(tab_norm)
+
+
+tab_norm_HeatMap <- Heatmap(TabNorm_rows_Matrix, width = unit(50, 'mm'), height = unit(80, 'mm'), rect_gp = gpar(col = 'black'), cluster_columns = T, cluster_rows = T, show_row_dend = F, show_column_dend = F, name = 'Inferred Cell Type Composition\nAcross Diseases')
+#png("/group/davila/hosna.basiri/data/scRNA_4disease/4DiseasePlots/tab_norm_HeatMap.png", width=2000, height=1600, res=300); tab_norm_HeatMap; dev.off()
+
+```
+

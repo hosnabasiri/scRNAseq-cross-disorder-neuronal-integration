@@ -1,0 +1,149 @@
+#Profile and Signature
+##Profile
+```{r}
+
+Profilling<-function(data, cluster, attribute){
+  
+ ProfileMatrix <- do.call(cbind, lapply(cluster, function(cells) {
+  eachmatrix <- logcounts(data)[, colData(data)[,attribute] == cells ]
+  
+  if(is.vector(eachmatrix)) {
+    return(eachmatrix)
+  }
+  
+  row_means <- apply(eachmatrix, 1, mean)
+  
+  
+    return(row_means)
+  }))
+  
+  # Assign column names based on cell types
+  colnames(ProfileMatrix) <- cluster
+  
+  return(ProfileMatrix)
+}
+
+```
+
+##Signature
+###pre_requirement for signature 
+```{r}
+FC_pairwise <- function(expMat, 
+                        QueryCol, 
+                        RefColSet=NULL, 
+                        sortedFC=F) {
+    
+    # Description: given an expression matrix expMat and a query column QueryCol, 
+    # it computes the difference between each other column of the 
+    # expression matrix and the query column, and then sums the differences 
+    # between them. If RefColSet you can define a subset of the expMat to 
+    # consider in the subtraction with the query column. 
+    # If sortedFC=T, it sorts the result (decreasin=T), 
+    # such that genes that are the most different will appear earlier.
+    
+    if(is.null(RefColSet)) {
+        RefColSet <- colnames(expMat)[-which(colnames(expMat)==QueryCol)]
+    }
+    
+    temp <- do.call(cbind, lapply(RefColSet, function(i) {
+        expMat[,QueryCol]-expMat[,i]
+        }))
+    
+    colnames(temp) <- RefColSet
+    rownames(temp) <- rownames(expMat)
+    FC <- rowSums(temp)
+    
+    if(sortedFC) {
+        FC <- sort(FC, decreasing = T)
+    }
+    
+    return(FC)
+}
+
+```
+
+###Signature_2
+```{r}
+FC_signatures <- function(expMat) {
+    
+    # Description: it computes the signature of all the columns of an expression 
+    # matrix expMat
+    if(is.null(colnames(expMat))) {
+        colnames(expMat) <- paste0('Column-', 1:dim(expMat)[2])
+    }
+  
+    out <- do.call(cbind, lapply(colnames(expMat), function(i) {
+        FC_pairwise(expMat, QueryCol = i, sortedFC = F)}))
+    
+    colnames(out) <- colnames(expMat)
+    return(out)
+}
+
+```
+
+#Jorstad ACTIONet, Profille, Signature 
+```{r}
+
+Jorstad_signatures <- readRDS("path/to/Jorstad_signatures.rds")
+```
+
+
+# ASD individual-level correlation with Jorstad reference
+```{r}
+out_dir  <- "outputs/Individual_Jostad_Correlation/ASD/"
+out_dir1 <- "figures/Individual_Cluster_Correlation/ASD/"
+
+library(ComplexHeatmap)
+library(grid)
+
+
+ASD_ACTIONet_run_ProSig <- lapply(names(ASD_ACTIONet_run), function(Individual_ace_i){
+
+  Indivdual_i <- ASD_ACTIONet_run[[Individual_ace_i]]
+
+  Indivdual_i$leiden <- paste0(Individual_ace_i, "_c", Indivdual_i$leiden)
+
+  Individual_Cluster   <- unique(Indivdual_i$leiden)
+  Indivdual_Profile    <- Profilling(Indivdual_i, Individual_Cluster, attribute='leiden')
+  Indivdual_signatures <- FC_signatures(Indivdual_Profile)
+
+  Gene_Names <- intersect(rownames(Jorstad_signatures), rownames(Indivdual_signatures))
+
+
+  COR_VS_jorstad <- cor(
+    Jorstad_signatures[Gene_Names, , drop=FALSE],
+    Indivdual_signatures[Gene_Names, , drop=FALSE]
+  )
+
+
+  saveRDS(
+    COR_VS_jorstad,
+    file = file.path(out_dir, paste0(Individual_ace_i, "_cor_vs_jorstad.rds"))
+  )
+
+
+  x <- Heatmap(
+    COR_VS_jorstad,
+    width = unit(120,"mm"), height = unit(80,"mm"),
+    rect_gp = gpar(col="black"),
+    cluster_columns=TRUE, cluster_rows=TRUE,
+    show_row_dend=FALSE, show_column_dend=FALSE,
+    name="correlation",
+    row_title="Jorstad Cell Type",
+    column_title="Leiden Cluster"
+  )
+
+  png(file.path(out_dir1, paste0(Individual_ace_i, "_cor_heatmap.png")),
+          width = 3500, height = 2500, res = 300)
+  draw(x)
+  dev.off()
+
+  return(Indivdual_i)
+})
+names(ASD_ACTIONet_run_ProSig) <- names(ASD_ACTIONet_run)
+
+saveRDS(ASD_ACTIONet_run_ProSig, "outputs/ASD_ACTIONet_run_ProSig.rds")
+# ASD_ACTIONet_run_ProSig <- readRDS("path/to/ASD_ACTIONet_run_ProSig.rds")
+```
+
+

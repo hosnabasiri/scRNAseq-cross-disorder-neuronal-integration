@@ -1,0 +1,117 @@
+
+# Binding individual-level correlation matrices and assigning cluster-level tags
+# This script combines correlation matrices across disorders,
+# constructs a unified bound matrix, and maps cluster-level annotations
+# back to the integrated neuronal object.
+
+
+# make a binded correlation matrix 
+##Binded_Matrix
+```{r}
+AD_files <- list.files("path/to/Individual_Jostad_Correlation/AD/", full.names = TRUE, pattern = "\\.rds$")
+AD_Correlation_Mtrixes <- lapply(AD_files, readRDS)
+dim(AD_Correlation_Mtrixes)
+length(AD_Correlation_Mtrixes)
+
+ASD_files <- list.files("path/to/Individual_Jostad_Correlation/ASD/", full.names = TRUE, pattern = "\\.rds$")
+ASD_Correlation_Mtrixes <- lapply(ASD_files, readRDS)
+length(ASD_Correlation_Mtrixes)
+
+MS_files <- list.files("path/to/Individual_Jostad_Correlation/MS/", full.names = TRUE, pattern = "\\.rds$")
+MS_Correlation_Mtrixes <- lapply(MS_files, readRDS)
+length(MS_Correlation_Mtrixes)
+
+MDD_files <- list.files("path/to/Individual_Jostad_Correlation/MDD/", full.names = TRUE, pattern = "\\.rds$")
+MDD_Correlation_Mtrixes <- lapply(MDD_files, readRDS)
+length(MDD_Correlation_Mtrixes)
+
+
+JORS_files <- list.files("path/to/Individual_Jostad_Correlation/JORS/", full.names = TRUE, pattern = "\\.rds$")
+JORS_Correlation_Mtrixes <- lapply(JORS_files, readRDS)
+length(JORS_Correlation_Mtrixes)
+
+Binding_List_Correlation <- c(ASD_Correlation_Mtrixes,MS_Correlation_Mtrixes,MDD_Correlation_Mtrixes,AD_Correlation_Mtrixes,JORS_Correlation_Mtrixes)
+
+
+
+Binded_Matrix <- do.call(cbind, Binding_List_Correlation) 
+dim(Binded_Matrix)
+saveRDS(Binded_Matrix,"path/to/Binded_Matrix.rds")
+Binded_Matrix <- readRDS("path/to/Binded_Matrix.rds")
+dim(Binded_Matrix)
+```
+#Adding Column ID 
+```{r}
+#ASD
+ASD_ACTIONet_run<- lapply(ASD_ACTIONet_run,function(i){
+
+    i$CLuster_TAG <- setNames(i$leiden,i$CellTAGs)
+  i
+})
+      
+#MS
+MS_ACTIONet_run<- lapply(MS_ACTIONet_run,function(i){
+
+    i$CLuster_TAG <- setNames(i$leiden,i$CellTAGs)
+  i
+})
+ 
+#AD
+
+AD_ACTIONet_run<- lapply(AD_ACTIONet_run,function(i){
+
+    i$CLuster_TAG <- setNames(i$leiden,i$CellTAGs)
+  i
+})
+ 
+#MDD
+MDD_ACTIONet_run<- lapply(MDD_ACTIONet_run,function(i){
+
+    i$CLuster_TAG <- setNames(i$leiden,i$CellTAGs)
+  i
+})
+#Jors
+JORS_ACTIONet_run<- lapply(JORS_ACTIONet_run,function(i){
+
+    i$CLuster_TAG <- setNames(i$leiden,i$CellTAGs)
+  i
+})
+
+##
+allMDD_tags <- unlist(lapply(MDD_ACTIONet_run, function(x){ x$CLuster_TAG}))
+allMS_tags <- unlist(lapply(MS_ACTIONet_run, function(x){ x$CLuster_TAG}))
+allAD_tags <- unlist(lapply(AD_ACTIONet_run, function(x){ x$CLuster_TAG}))
+allASD_tags <- unlist(lapply(ASD_ACTIONet_run, function(x){ x$CLuster_TAG}))
+allJORS_tags <- unlist(lapply(JORS_ACTIONet_run, function(x){ x$CLuster_TAG}))
+
+
+
+All_Cluster_TAG <- c(allASD_tags,allMS_tags,allMDD_tags,allAD_tags,allJORS_tags)
+length(All_Cluster_TAG)
+```
+
+#Reneuron_ace$TAGs
+```{r}
+#REneurons_ace$CellTAG<- paste0(REneurons_ace$Individual,".",REneurons_ace$CellTAGs)
+REneurons_ace$Cluster_TAG <- All_Cluster_TAG[REneurons_ace$CellTAGs]
+
+
+
+Binded_Matrix <- readRDS("path/to/Binded_Matrix.rds")
+
+Individual_Celltype_DataFrame <- data.frame(cluster = colnames(Binded_Matrix), celltype = rownames(Binded_Matrix)[apply(Binded_Matrix, 2, which.max)])
+
+
+#max(x)	The largest value in the vector
+#which.max(x)	The position (index) of the largest value
+
+
+REneurons_ace$Cluster.Cell.Type <-  Individual_Celltype_DataFrame$celltype[match(REneurons_ace$Cluster_TAG, Individual_Celltype_DataFrame$cluster)]
+
+
+
+saveRDS(REneurons_ace,'path/to/REneurons_WITH_Cluster_TAG.rds')
+
+```
+
+

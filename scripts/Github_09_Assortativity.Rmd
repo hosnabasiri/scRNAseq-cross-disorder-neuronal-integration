@@ -1,0 +1,151 @@
+
+#Corrected_PesoudoBulk
+```{r}
+#REneurons_sce
+pseudoCorrected_REneurons_sce <- readRDS('path/to/pseudoCorrected_REneurons_sce.rds')
+
+
+##Make Subset
+CellType_REneurons <- unique(pseudoCorrected_REneurons_sce$CellType)
+
+REneurons_Corrected_CellTypeSubset <- setNames(
+  lapply(CellType_REneurons, function(CellType_i) {
+   pseudoCorrected_REneurons_sce[,pseudoCorrected_REneurons_sce$CellType == CellType_i]
+  }),
+  CellType_REneurons
+)
+```
+
+
+```{r}
+
+
+CellType_CorrectedSubset <- REneurons_Corrected_CellTypeSubset[
+  !(names(REneurons_Corrected_CellTypeSubset) %in% c("Pax6", "L5 ET"))
+]
+
+CellType_names <- names(CellType_CorrectedSubset)
+
+Assortativity_Corrected_Subset <- setNames(
+  lapply(
+    CellType_CorrectedSubset, function(IndidvidLSubset_i){
+
+    umap_plot <- umap::umap(t(logcounts(IndidvidLSubset_i)))
+
+    knn_obj  <- umap_plot$knn
+    knn_idx  <- knn_obj$indexes
+    knn_dist <- knn_obj$distances 
+
+    source_nodes <- rep(1:nrow(knn_idx), each = ncol(knn_idx)) 
+
+    edge_list_df <- data.frame(
+      Source = source_nodes,
+      Target = c(t(knn_idx)),
+      Weight = c(t(1 - knn_dist))
+    )
+
+    knn_graph <- igraph::graph_from_data_frame(
+      d = edge_list_df,
+      directed = FALSE
+    )
+
+    E(knn_graph)$weight <- 1 - as.numeric(t(knn_dist))
+
+    diagnosis_type <- as.numeric(as.factor(IndidvidLSubset_i$Diagnosis))
+    Study_type     <- as.numeric(as.factor(IndidvidLSubset_i$Study))
+
+    assort_diag <- igraph::assortativity_nominal(
+      knn_graph,
+      types = diagnosis_type,
+      directed = FALSE
+    )
+
+    assort_Study <- igraph::assortativity_nominal(
+      knn_graph,
+      types = Study_type,
+      directed = FALSE
+    )
+
+    c(
+      diagnosis = assort_diag,
+      Study     = assort_Study
+    )
+
+  }),
+  CellType_names
+)
+
+
+
+```
+#NonCorrected_PesoudoBulk
+```{r}
+##Make Subset
+CellType_REneurons <- unique(pseudo_REneurons_sce$CellType)
+
+REneurons_CellTypeSubset <- setNames(
+  lapply(CellType_REneurons, function(CellType_i) {
+    pseudo_REneurons_sce[, pseudo_REneurons_sce$CellType == CellType_i]
+  }),
+  CellType_REneurons
+)
+```
+
+```{r}
+##Doing Assortativity
+CellTypeSubset <- REneurons_CellTypeSubset[ !(names(REneurons_CellTypeSubset) %in% c("Pax6", "L5 ET")) ]
+
+CellType_Subset <- c( "L4 IT","L5 IT","Vip","Lamp5 Lhx6","L2/3 IT","Pvalb","Sst","Chandelier",
+                                 "L6 CT", "Sncg","L6 IT" ,"L6 IT Car3","L5/6 NP","Lamp5","L6b" )
+
+Assortativity_NonCorrected_Subset <- setNames(lapply(CellTypeSubset,function(IndidvidLSubset_i){
+  
+  umap_plot <- umap::umap(t(logcounts(IndidvidLSubset_i)))
+  
+  knn_obj   <- umap_plot$knn
+  knn_idx   <- knn_obj$indexes
+  knn_dist  <- knn_obj$distances 
+  
+  
+  source_nodes <- rep(1:nrow(knn_idx), each = ncol(knn_idx)) 
+  
+  edge_list_df <- data.frame(
+    Source = source_nodes,
+    Target = c(t(knn_idx)) ,
+    Weight =  c(t(1-knn_dist)))
+  
+  knn_graph <- graph_from_data_frame(d = edge_list_df, 
+                                     directed = FALSE)
+  E(knn_graph)$weight <- 1-as.numeric(t(knn_dist))
+  
+  
+  diagnosis_type <- as.numeric(as.factor(IndidvidLSubset_i$Diagnosis))
+  Study_type   <- as.numeric(as.factor(IndidvidLSubset_i$Study))
+  
+  #  diagnosis
+  assort_diag <- igraph::assortativity_nominal(
+    knn_graph,
+    types    = diagnosis_type,
+    directed = FALSE)
+  
+  #Study
+  assort_Study <- assortativity_nominal(
+    knn_graph,
+    types    = Study_type,
+    directed = FALSE
+  )
+  
+  
+  c(
+    diagnosis = assort_diag,
+    Study   = assort_Study
+  )
+  
+}),CellType_Subset
+)
+
+Study_NonCorrected<- lapply(Assortativity_NonCorrected_Subset, function(x) x["Study"])
+
+
+
+```

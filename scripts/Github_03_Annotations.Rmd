@@ -1,0 +1,146 @@
+
+
+
+# Annotation using cluster profiles and reference signatures
+# This script computes cluster-level expression profiles,
+# derives fold-change signatures, and annotates clusters
+# by correlation with Jorstad reference cell types.
+
+#profilling
+```{r}
+
+Profilling <- function(data, cluster, attribute){
+  # compute the average expression of the cluster
+  
+  ProfileMatrix <- do.call(cbind, lapply(cluster, function(cells) {
+    eachmatrix <- logcounts(data)[, colData(data)[,attribute] == cells ]
+    
+    if(is.vector(eachmatrix)) {
+      return(eachmatrix)
+    }
+    
+    row_means <- apply(eachmatrix, 1, mean)
+    
+    
+    return(row_means)
+  }))
+  
+  # Assign column names based on cell types
+  colnames(ProfileMatrix) <- cluster
+  
+  return(ProfileMatrix)
+}
+
+
+
+#cluster
+neurons_clusters<- unique(neurons_ace$leiden)
+neuronsProfille_Leiden <- Profilling(neurons_ace,neurons_clusters,attribute ='leiden' )
+
+#neurons_ace[, colData(neurons_ace)$Disease == "Jorstad_Neurons"]
+neurons_Jorstad_Celltype <- unique(neurons_ace[, colData(neurons_ace)$Disease == "Jorstad_Neurons"]$Cell.Type)
+neuronsProfille_celltypeJorstad <- Profilling( neurons_ace[, colData(neurons_ace)$Disease == "Jorstad_Neurons"], neurons_Jorstad_Celltype, attribute = "Cell.Type")
+```
+
+#Signature
+##pre_requirement for signature 
+```{r}
+FC_pairwise <- function(expMat, 
+                        QueryCol, 
+                        RefColSet=NULL, 
+                        sortedFC=F) {
+    
+    # Description: given an expression matrix expMat and a query column QueryCol, 
+    # it computes the difference between each other column of the 
+    # expression matrix and the query column, and then sums the differences 
+    # between them. If RefColSet you can define a subset of the expMat to 
+    # consider in the subtraction with the query column. 
+    # If sortedFC=T, it sorts the result (decreasin=T), 
+    # such that genes that are the most different will appear earlier.
+    
+    if(is.null(RefColSet)) {
+        RefColSet <- colnames(expMat)[-which(colnames(expMat)==QueryCol)]
+    }
+    
+    temp <- do.call(cbind, lapply(RefColSet, function(i) {
+        expMat[,QueryCol]-expMat[,i]
+        }))
+    
+    colnames(temp) <- RefColSet
+    rownames(temp) <- rownames(expMat)
+    FC <- rowSums(temp)
+    
+    if(sortedFC) {
+        FC <- sort(FC, decreasing = T)
+    }
+    
+    return(FC)
+}
+
+```
+
+##Signature_2
+```{r}
+FC_signatures <- function(expMat) {
+    
+    # Description: it computes the signature of all the columns of an expression 
+    # matrix expMat
+    if(is.null(colnames(expMat))) {
+        colnames(expMat) <- paste0('Column-', 1:dim(expMat)[2])
+    }
+  
+    out <- do.call(cbind, lapply(colnames(expMat), function(i) {
+        FC_pairwise(expMat, QueryCol = i, sortedFC = F)}))
+    
+    colnames(out) <- colnames(expMat)
+    return(out)
+}
+
+
+NeuronsSIG_Leiden <- FC_signatures(neuronsProfille_Leiden)
+
+
+#NeuronsSIG_celltypeJorstad <- readRDS("path/to/Jorstad_signatures.rds")
+NeuronsSIG_celltypeJorstad <- FC_signatures(neuronsProfille_celltypeJorstad)
+```
+
+
+##corrolation 
+```{r}
+
+   CORNeuronsSIG_VS_NeuronsSIG_celltypeJorstad <- cor(
+    NeuronsSIG_Leiden,
+    NeuronsSIG_celltypeJorstad
+  )
+
+
+```
+
+
+# Cluster annotation based on reference correlation
+```{r}
+Cluster_Annotation <- data.frame(cluster = colnames(CORNeuronsSIG_VS_NeuronsSIG_celltypeJorstad), celltype = rownames(CORNeuronsSIG_VS_NeuronsSIG_celltypeJorstad)[apply(CORNeuronsSIG_VS_NeuronsSIG_celltypeJorstad, 2, which.max)])
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

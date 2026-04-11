@@ -1,0 +1,310 @@
+
+
+#Actionet Binded_Matrix
+```{r}
+Binded_Matrix <- readRDS("path/to/Binded_Matrix.rds")
+dim(Binded_Matrix)
+
+class(Binded_Matrix)
+
+Indivdual_Neuron_ace <- ACTIONetExperiment::ACTIONetExperiment(
+  assays = list(
+    counts = Binded_Matrix
+  ))
+```
+##highest of each indivdual 
+```{r}
+
+Max_Column_Number <- apply(Binded_Matrix, 2, which.max)
+Max_Row_Names <- rownames(Binded_Matrix)[Max_Column_Number]
+#name
+length(Max_Row_Names)
+#number
+length(Max_Column_Number)
+dim(Binded_Matrix)
+Indivdual_Neuron_ace$Celltype <-  Max_Row_Names
+unique(Indivdual_Neuron_ace$Celltype )
+```
+
+
+#creating Vector ID
+##MS vector
+```{r}
+MS_files <- list.files("path/to/Individual_Jostad_Correlation/MS/", full.names = TRUE, pattern = "\\.rds$")
+MS_Correlation_Mtrixes <- lapply(MS_files, readRDS)
+length(MS_Correlation_Mtrixes)
+
+MS_Individl_names <- unique((REneurons_MS$Individual))
+sub("MS_","",MS_Individl_names)
+Order_MS_Individual <- order(MS_Individl_names)
+MS_c <- c(MS_Individl_names[Order_MS_Individual])
+
+MS_Correlation_Mtrixes <- setNames(MS_Correlation_Mtrixes,MS_c)
+
+
+
+
+MS_result <- unlist(
+  lapply(names(MS_Correlation_Mtrixes), function(names_i){
+    part_i <- MS_Correlation_Mtrixes[[names_i]]
+    rep(as.character(names_i), ncol(part_i))
+  })
+)
+
+
+```
+
+
+
+##MDD Vector
+```{r}
+MDD_files <- list.files("path/to/Individual_Jostad_Correlation/MDD/", full.names = TRUE, pattern = "\\.rds$")
+MDD_Correlation_Mtrixes <- lapply(MDD_files, readRDS)
+length(MDD_Correlation_Mtrixes)
+
+MDD_rep <- rep(1:34)
+MDD_c <- paste0("MDD_",MDD_rep)
+
+MDD_Correlation_Mtrixes <- setNames(MDD_Correlation_Mtrixes,MDD_c)
+names(MDD_Correlation_Mtrixes)
+
+
+
+MDD_result <- unlist(
+  lapply(names(MDD_Correlation_Mtrixes), function(names_i){
+    part_i <- MDD_Correlation_Mtrixes[[names_i]]
+    rep(as.character(names_i), ncol(part_i))
+  })
+)
+
+```
+
+
+
+##ASD Vector
+```{r}
+ASD_files <- list.files("path/to/Individual_Jostad_Correlation/ASD/", full.names = TRUE, pattern = "\\.rds$")
+ASD_Correlation_Mtrixes <- lapply(ASD_files, readRDS)
+length(ASD_Correlation_Mtrixes)
+
+ASD_Individl_names <- unique((REneurons_autism$Individual))
+sub("ASD_","",ASD_Individl_names)
+Order_ASD_Individual <- order(ASD_Individl_names)
+ASD_c <- c(ASD_Individl_names[Order_ASD_Individual])
+
+ASD_Correlation_Mtrixes <- setNames(ASD_Correlation_Mtrixes,ASD_c)
+names(ASD_Correlation_Mtrixes)
+
+
+
+ASD_result <- unlist(
+  lapply(names(ASD_Correlation_Mtrixes), function(names_i){
+    part_i <- ASD_Correlation_Mtrixes[[names_i]]
+    rep(as.character(names_i), ncol(part_i))
+  })
+)
+
+```
+
+
+##AD Vector
+```{r}
+AD_files <- list.files("path/to/Individual_Jostad_Correlation/AD/", full.names = TRUE, pattern = "\\.rds$")
+AD_Correlation_Mtrixes <- lapply(AD_files, readRDS)
+dim(AD_Correlation_Mtrixes)
+length(AD_Correlation_Mtrixes)
+
+AD_Individl_names <- unique((REneurons_AD$Individual))
+sub("AD_","",AD_Individl_names)
+Order_Individual <- order(AD_Individl_names)
+AD_c <- c(AD_Individl_names[Order_Individual])
+
+AD_Correlation_Mtrixes <- setNames(AD_Correlation_Mtrixes,AD_c)
+names(AD_Correlation_Mtrixes)
+
+
+
+AD_result <- unlist(
+  lapply(names(AD_Correlation_Mtrixes), function(names_i){
+    part_i <- AD_Correlation_Mtrixes[[names_i]]
+    rep(as.character(names_i), ncol(part_i))
+  })
+)
+
+```
+
+##Jorstad Vector
+```{r}
+JORS_files <- list.files("path/to/Individual_Jostad_Correlation/JORS/", full.names = TRUE, pattern = "\\.rds$")
+JORS_Correlation_Mtrixes <- lapply(JORS_files, readRDS)
+JORS_Correlation_Mtrixes
+
+
+
+
+c <- c("Jors_H18.30.001","Jors_H18.30.002","Jors_H19.30.001","Jors_H19.30.002" ,"Jors_H200.1023")
+JORS_Correlation_Mtrixes <- setNames(JORS_Correlation_Mtrixes,c)
+names(JORS_Correlation_Mtrixes)
+
+Jors_result <- unlist(
+  lapply(names(JORS_Correlation_Mtrixes), function(names_i){
+    part_i <- JORS_Correlation_Mtrixes[[names_i]]
+    rep(as.character(names_i), ncol(part_i))
+  })
+)
+
+Binded_Matrix
+```
+
+
+
+##Adding individual ID
+```{r}
+
+Binding_List_Correlation <- c(ASD_result,MS_result,MDD_result,AD_result,Jors_result)
+length(Binding_List_Correlation)
+Indivdual_Neuron_ace$Individual <- Binding_List_Correlation
+
+```
+
+
+
+#Disease Column
+```{r}
+
+Diagnosis <- c(
+  rep("ASD",  length(ASD_result)),
+  rep("MS",   length(MS_result)),
+  rep("MDD",  length(MDD_result)),
+  rep("AD",   length(AD_result)),
+  rep("JORS", length(Jors_result))
+)
+
+length(Diagnosis)
+Indivdual_Neuron_ace$Disease <- Diagnosis
+
+```
+
+
+# Individual Diagnosis 
+##ASD
+```{r}
+#ASD
+unique(autism_Neurons$diagnosis)
+nameASD <- autism_Neurons$individual
+Tabaling_Pationt_Diagnosis_ASD <- table(autism_Neurons$individual,autism_Neurons$diagnosis)
+Dictionary_Pationet_Diagnosis_ASD <- apply(Tabaling_Pationt_Diagnosis_ASD[, c("ASD", "Control")], 1, function(x) {
+  names(x)[x > 0]
+})
+#names(Dictionary_Pationet_Diagnosis_ASD) <- paste0("ASD_", names(Dictionary_Pationet_Diagnosis_ASD))
+ASDIndividual <-Indivdual_Neuron_ace[,Indivdual_Neuron_ace$Disease =="ASD"] 
+ASD_Diagnosis_Vector <- Dictionary_Pationet_Diagnosis_ASD[ ASDIndividual$Individual ]
+```
+
+##MS
+```{r}
+#MS
+unique(REneurons_MS$Diagnosis)
+nameMS <- REneurons_MS$Individual
+Tabaling_Pationt_Diagnosis_MS <- table(REneurons_MS$Individual,REneurons_MS$Diagnosis)
+#rownames(Tabaling_Pationt_Diagnosis_MS) <- sub("_MS$", "", rownames(Tabaling_Pationt_Diagnosis_MS))
+Dictionary_Pationet_Diagnosis_MS <- apply(Tabaling_Pationt_Diagnosis_MS[, c("MS", "Control")], 1, function(x) {
+  names(x)[x > 0]
+})
+
+ #names(Dictionary_Pationet_Diagnosis_MS) <- paste0("MS_", names(Dictionary_Pationet_Diagnosis_MS))
+MSIndividual <-Indivdual_Neuron_ace[,Indivdual_Neuron_ace$Disease =="MS"] 
+
+MS_Diagnosis_Vector<- Dictionary_Pationet_Diagnosis_MS[MSIndividual$Individual ]
+
+```
+
+##MDD
+```{r}
+#MDD
+unique(REneurons_MDD$Diagnosis)
+nameMDD <- REneurons_MDD$Individual
+Tabaling_Pationt_Diagnosis_MDD <- table(REneurons_MDD$Individual,REneurons_MDD$Diagnosis)
+#rownames(Tabaling_Pationt_Diagnosis_MDD) <- sub("_MDD$", "", rownames(Tabaling_Pationt_Diagnosis_MDD))
+Dictionary_Pationet_Diagnosis_MDD <- apply(Tabaling_Pationt_Diagnosis_MDD[, c("MDD", "Control")], 1, function(x) {
+  names(x)[x > 0]
+})
+
+#names(Dictionary_Pationet_Diagnosis_MDD) <- paste0("MDD_", names(Dictionary_Pationet_Diagnosis_MDD))
+MDDIndividual <-Indivdual_Neuron_ace[,Indivdual_Neuron_ace$Disease =="MDD"] 
+
+
+MDD_Diagnosis_Vector<- Dictionary_Pationet_Diagnosis_MDD[MDDIndividual$Individual ]
+```
+
+##AD
+```{r}
+#AD
+unique(Alzheimer_ace$AD.group)
+Alzheimer_Neurons$AD.group[Alzheimer_Neurons$AD.group %in% c("Mod-Severe-AD", "Pre-Mild-AD")] <- "AD"
+Alzheimer_Neurons$AD.group[Alzheimer_Neurons$AD.group %in% "Non-AD"] <- "Control"
+#Alzheimer_Neurons$age_bl <- paste0("AD_",Alzheimer_Neurons$age_bl)
+#sub(Alzheimer_Neurons$age_bl,"AD_","")
+unique(Alzheimer_Neurons$age_bl)
+Tabaling_Pationt_Diagnosis_AD <- table(Alzheimer_Neurons$age_bl,Alzheimer_Neurons$AD.group)
+Dictionary_Pationet_Diagnosis_AD <- apply(Tabaling_Pationt_Diagnosis_AD[, c("AD", "Control")], 1, function(x) {
+  names(x)[x > 0]
+})
+ADIndividual <-Indivdual_Neuron_ace[,Indivdual_Neuron_ace$Disease =="AD"] 
+mean(unique(ADIndividual$Individual) %in% unique(Alzheimer_Neurons$age_bl))
+
+AD_Diagnosis_Vector<- Dictionary_Pationet_Diagnosis_AD[ ADIndividual$Individual ]
+```
+
+##JORS
+```{r}
+#JORS
+
+unique(REneurons_Jors$Diagnosis)
+namejors <- REneurons_Jors$Individual
+JORS_Dictionary <- setNames(rep("Control", length(unique(namejors))),
+                            unique(namejors))
+
+#names(Dictionary_Pationet_Diagnosis_MDD) <- paste0("MDD_", names(Dictionary_Pationet_Diagnosis_MDD))
+JORSIndividual <-Indivdual_Neuron_ace[,Indivdual_Neuron_ace$Disease =="JORS"] 
+
+JORS_Diagnosis_Vector<- JORS_Dictionary[JORSIndividual$Individual ]
+length(JORS_Diagnosis_Vector)
+
+```
+##Adding Column Diagnosis
+```{r}
+Diagnosis <- c(
+ ASD_Diagnosis_Vector,
+ MS_Diagnosis_Vector,
+  MDD_Diagnosis_Vector,
+AD_Diagnosis_Vector,
+JORS_Diagnosis_Vector
+)
+#
+Indivdual_Neuron_ace$Diagnosis <- Diagnosis[ Indivdual_Neuron_ace$Individual ]
+length(Indivdual_Neuron_ace$Diagnosis )
+unname (Indivdual_Neuron_ace$Diagnosis)
+```
+
+###Saving Individual Object 
+```{r}
+names(assays(Indivdual_Neuron_ace))
+names(assays(Indivdual_Neuron_ace)) <- 'logcounts'
+assay(Indivdual_Neuron_ace, "logcounts") <- as.matrix(assay(Indivdual_Neuron_ace, "logcounts"))
+rownames(assay(Indivdual_Neuron_ace, "logcounts")) <- rownames(Indivdual_Neuron_ace)
+
+#saveRDS(Indivdual_Neuron_ace,'~/RESEARCH_PROJECT/4Disease/data/Indivdual_Neuron_ace.rds')
+Indivdual_Neuron_ace <- readRDS('~/RESEARCH_PROJECT/4Disease/data/Indivdual_Neuron_ace.rds')
+
+
+Indivdual_Neuron_ace <- ACTIONet::reduce.ace(Indivdual_Neuron_ace)
+Indivdual_Neuron_ace <- ACTIONet::runACTIONet(Indivdual_Neuron_ace, thread_no = 1)
+#saveRDS(Indivdual_Neuron_ace,'~/RESEARCH_PROJECT/4Disease/data/Indivdual_Neuron_ACTIONetRUN_ace.rds')
+Indivdual_Neuron_ace <- readRDS('~/RESEARCH_PROJECT/4Disease/data/Indivdual_Neuron_ACTIONetRUN_ace.rds')
+```
+
+
+
+
+

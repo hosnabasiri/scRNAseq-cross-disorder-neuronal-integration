@@ -1,0 +1,131 @@
+
+# Pseudobulk construction and batch correction
+# This script constructs pseudobulk profiles from cluster-level labels,
+# assigns relevant metadata, and applies batch correction while preserving
+# biological covariates such as cell type and diagnosis.
+
+# Create the pseudobulks and normalize them
+
+Functions to create the pseudobulk
+
+```{r, basic functions}
+# pairwise fold change
+FC_pairwise <- function(expMat, QueryCol, RefColSet=NULL, sortedFC=F) {
+  if(is.null(RefColSet)) RefColSet <- colnames(expMat)[-which(colnames(expMat)==QueryCol)]
+  temp <- do.call(cbind, lapply(RefColSet, function(i) expMat[,QueryCol]-expMat[,i]))
+  colnames(temp) <- RefColSet
+  rownames(temp) <- rownames(expMat)
+  FC <- rowSums(temp)
+  if(sortedFC) FC <- sort(FC, decreasing = T)
+  return(FC)
+}
+
+FC_signatures <- function(xM) {
+
+  out <- do.call(
+    cbind,
+    lapply(base::colnames(xM), function(i) {
+      FC_pairwise(xM, QueryCol = i, sortedFC = FALSE)
+    })
+  )
+
+  base::colnames(out) <- base::colnames(xM)
+  
+  return(out)
+}
+
+
+
+
+# get counts for pseudobulk
+get_column_group_count <- function(x, group, doParallel=FALSE) {
+  Ugroups <- sort(names(which(table(group)>1)))
+  if(doParallel) out <- do.call(cbind, parallel::mclapply(mc.cores = 8, X=Ugroups, function(i) Matrix::rowSums(as(x[,group==i], "sparseMatrix")))) else out <- do.call(cbind, lapply(Ugroups, function(i) Matrix::rowSums(as(x[,group==i], "sparseMatrix"))))
+  colnames(out) <- Ugroups
+  rownames(out) <- rownames(x)
+  return(out)
+}
+
+# CPM normalisation
+normalize_cpm <- function(M, logIt=T) {
+  cpm <- t(t(M)/colSums(M, na.rm = T))*1000000
+  if(logIt) cpm <- log2(cpm+1)
+  return(cpm)
+}
+
+# pseudobulking and post hoc analysis
+get_pseudobulk_sce <- function(xsce, xvec, ...) {
+  # sum counts in each group given in xvec
+  pseudobulk <- get_column_group_count(counts(xsce), xvec, ...)
+  # normalize to get logcounts
+  P <- normalize_cpm(pseudobulk)
+  # get signatures of logcounts
+  S <- FC_signatures(P)
+  o <- SingleCellExperiment(assays=list(counts=pseudobulk, logcounts=P, signatures=S))
+  if(is.null(colnames(o))) {
+    colnames(o) <- colnames(pseudobulk)
+  }
+  o@metadata$cell_count <- table(xvec)
+  return(o)
+}
+```
+
+```{r, pseudobulk }
+ z <- unname(REneurons_ace$Cluster_TAG)
+pseudo_REneurons_sce <- get_pseudobulk_sce(REneurons_ace, z)
+
+saveRDS(pseudo_REneurons_sce,'path/to/pseudo_REneurons_sce.rds')
+
+```
+
+##Adding ColData
+```{r, colData}
+#sample=Individual
+#cluster=Cluster_TAG
+
+pseudo_REneurons_sce$Individual <-  apply(table(REneurons_ace$Cluster_TAG, REneurons_ace$Individual)[colnames(pseudo_REneurons_sce),], 1, function(i) {colnames(table(REneurons_ace$Cluster_TAG, REneurons_ace$Individual))[which(i != 0)]})
+
+                       
+pseudo_REneurons_sce$CellType <- apply(table(REneurons_ace$Cluster_TAG, REneurons_ace$Cluster.Cell.Type)[colnames(pseudo_REneurons_sce),], 1, function(i) {colnames(table(REneurons_ace$Cluster_TAG, REneurons_ace$Cluster.Cell.Type))[which(i != 0)]})
+unique(REneurons_ace$Cluster.Cell.Type)
+
+
+pseudo_REneurons_sce$Study <- apply(table(REneurons_ace$Cluster_TAG, REneurons_ace$Study)[colnames(pseudo_REneurons_sce),], 1, function(i) {colnames(table(REneurons_ace$Cluster_TAG, REneurons_ace$Study))[which(i != 0)]})
+
+```
+
+##adding Diagnosis
+```{r, colData}
+
+Indivdual_Neuron_ace <- readRDS('path/to/Indivdual_Neuron_ACTIONetRUN_ace.rds')
+
+
+Individual_Dictionary_Diagnosis<- setNames(Indivdual_Neuron_ace$Diagnosis, Indivdual_Neuron_ace$Individual)
+
+pseudo_REneurons_sce$Diagnosis <- Individual_Dictionary_Diagnosis [pseudo_REneurons_sce$Individual]
+unname(pseudo_REneurons_sce$Diagnosis )
+
+#saveRDS(pseudo_REneurons_sce,'path/to/pseudo_REneurons_sce.rds')
+
+```
+
+
+#Batch Correction
+
+##Diagnosis
+```{r}
+Diagnosis_batchcorrected_REneurons_sce <- ComBat_seq(counts = counts(pseudo_REneurons_sce), batch = pseudo_REneurons_sce$Study, covar_mod = data.frame(pseudo_REneurons_sce$CellType,pseudo_REneurons_sce$Diagnosis)) #works on counts! 
+
+#saveRDS(Diagnosis_batchcorrected_REneurons_sce,'path/to/Diagnosis_batchcorrected_REneurons_sce.rds')
+
+
+```
+##adding the matrix to our psoudo-bulk
+```{r}
+#r, normalisation
+pseudoCorrected_REneurons_sce <- pseudo_REneurons_sce
+counts(pseudoCorrected_REneurons_sce) <- as(Diagnosis_batchcorrected_REneurons_sce, "sparseMatrix")
+logcounts(pseudoCorrected_REneurons_sce) <- normalize_cpm(counts(pseudoCorrected_REneurons_sce))
+
+saveRDS(pseudoCorrected_REneurons_sce,'path/to/pseudoCorrected_REneurons_sce.rds')
+```
