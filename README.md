@@ -86,7 +86,7 @@ Batch correction using ComBat-seq reduced study-driven variation while preservin
 
 ### Assortativity Analysis
 
-![Assortativity](figures/assortativity.png)
+![Assortativity](figures/Assortativity.png)
 
 To quantitatively evaluate integration quality, we computed network assortativity with respect to study labels.
 
