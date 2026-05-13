@@ -11,18 +11,6 @@ We tested two integration strategies:
 
 ---
 
-# 📊 Data
-
-This study integrates five independent human prefrontal cortex snRNA-seq datasets:
-
-- Alzheimer’s disease (AD)
-- Multiple sclerosis (MS)
-- Major depressive disorder (MDD)
-- Autism spectrum disorder (ASD)
-- Healthy controls
-
----
-
 # 📈 Analysis Workflow
 
 ## 🔹 Strategy 1: Cell-level Integration
