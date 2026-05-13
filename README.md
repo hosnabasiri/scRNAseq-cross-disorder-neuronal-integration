@@ -20,9 +20,7 @@ We tested two integration strategies:
 ### Integrated human cortical neuronal dataset
 
 <p align="center">
-
-  <img src="figures/Dataset-Integration.jpg" width="850">
-
+  <img src="figures/Dataset-Integration.jpg" width="900">
 </p>
 
 Human cortical single-cell and single-nucleus RNA-seq datasets from five independent studies were integrated, including neurodegenerative and neuropsychiatric disorders.
@@ -33,7 +31,9 @@ The ACTIONet representation shows the combined neuronal landscape used for downs
 
 ### Cell-type Annotation
 
-![Annotation](figures/Annotation.png)
+<p align="center">
+  <img src="figures/Annotation.png" width="850">
+</p>
 
 Neuronal identities were assigned using two complementary annotation strategies: cluster-based annotation and network-driven label inference using a reference dataset.
 
@@ -43,7 +43,9 @@ The agreement between the two approaches supports consistent neuronal identity a
 
 ### Marker-based Validation
 
-![Marker Validation](figures/GeneMarkerValidation.png)
+<p align="center">
+  <img src="figures/GeneMarkerValidation.png" width="850">
+</p>
 
 Cell-type annotations were validated using canonical neuronal marker genes associated with excitatory and inhibitory neuronal populations.
 
@@ -55,7 +57,9 @@ The observed marker expression patterns were consistent with the assigned neuron
 
 ### Cluster-level Integration
 
-![Cluster-level Integration](figures/ClusterLevel-Integration.png)
+<p align="center">
+  <img src="figures/ClusterLevel-Integration.png" width="900">
+</p>
 
 In this strategy, cells were first clustered within each individual sample before cross-dataset integration.
 
@@ -67,7 +71,9 @@ The cluster-first integration strategy was adapted from a framework developed in
 
 ### Pseudobulk Representation
 
-![Pseudo-bulk](figures/Bulk.png)
+<p align="center">
+  <img src="figures/Bulk.png" width="850">
+</p>
 
 Pseudobulk profiles were generated from individual-level neuronal clusters to support more stable downstream comparisons.
 
@@ -77,7 +83,9 @@ After ComBat-seq correction, study-driven separation was reduced while neuronal 
 
 ### Assortativity Analysis
 
-![Assortativity](figures/Assortativity.png)
+<p align="center">
+  <img src="figures/Assortativity.png" width="700">
+</p>
 
 Network assortativity was used to quantify study-driven structure in the integrated representation.
 
