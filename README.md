@@ -99,13 +99,19 @@ These results suggest that connectivity structure in the integrated representati
 
 # 💻 Repository Structure
 
+# 🗂 Repository Structure
+
 ```text
 scripts/
-├── 01_cell_level_integration.Rmd
-├── 02_individual_level_ACTIONet.Rmd
-├── 03_cluster_annotation.Rmd
-├── 04_pseudobulk_generation.Rmd
-└── 05_assortativity_analysis.Rmd
+├── 01_data_preparation.Rmd
+├── 02_cell_level_analysis.Rmd
+├── 03_annotation.Rmd
+├── 04_individual_clustering.Rmd
+├── 05_signature.Rmd
+├── 06_binding_correlations.Rmd
+├── 07_individual_neuron_object.Rmd
+├── 08_pseudobulk.Rmd
+└── 09_assortativity.Rmd
 
 figures/
 ├── Annotation.png
