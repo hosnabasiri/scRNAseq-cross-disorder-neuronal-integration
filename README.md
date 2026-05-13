@@ -35,7 +35,7 @@ Neuronal identities were assigned using two complementary annotation strategies:
 - cluster-based annotation
 - network-driven label inference using a reference dataset
 
-The strong agreement between the two approaches supports consistent neuronal identity assignment across datasets.
+The agreement between the two approaches supports consistent neuronal identity assignment across datasets.
 
 ---
 
