@@ -19,7 +19,11 @@ We tested two integration strategies:
 
 ### Integrated human cortical neuronal dataset
 
-![Integration](figures/Dataset-Integration.jpg)
+<p align="center">
+
+  <img src="figures/Dataset-Integration.jpg" width="850">
+
+</p>
 
 Human cortical single-cell and single-nucleus RNA-seq datasets from five independent studies were integrated, including neurodegenerative and neuropsychiatric disorders.
 
