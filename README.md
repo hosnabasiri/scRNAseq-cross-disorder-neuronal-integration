@@ -1,13 +1,13 @@
 # scRNAseq-cross-disorder-neuronal-integration
 
-The increasing availability of independently generated single-nucleus RNA-seq (snRNA-seq) datasets across neurological and psychiatric disorders provides an opportunity to study transcriptional variation within a unified analytical framework.
+With the increasing number of single-nucleus RNA-seq studies in brain disorders, it is now possible to combine datasets from different studies and compare neuronal changes across conditions.
 
-To address this, we integrated heterogeneous cortical datasets rather than analyzing each disorder independently, while accounting for major technical challenges including annotation inconsistency and study-specific batch effects.
+In this project, we integrated human cortical datasets from AD, MS, MDD, ASD, and healthy controls. The goal was to create a shared analytical framework for studying neuronal transcriptional variation across disorders. To do this, we had to address three main challenges: sparse and high-dimensional expression data, differences in neuronal cell-type annotations across studies, and study-specific batch effects.
 
-We compared two complementary integration strategies:
+We tested two integration strategies:
 
-1. **Cell-level integration**
-2. **Individual-level (cluster-first) integration**
+1. **Cell-level integration**, where neuronal cells from all datasets were integrated directly.
+2. **Individual-level cluster-first integration**, where cells were first clustered within each individual and then integrated across datasets.
 
 ---
 
