@@ -148,7 +148,15 @@ This repository contains a reproducible R/RMarkdown workflow for:
 - umap
 
 ---
+# ▶️ Running the pipeline
 
+Scripts are organized sequentially and should be executed in numerical order.
+
+Input datasets are not included in this repository due to size and access restrictions.
+
+Main analyses were performed in R using ACTIONet and SingleCellExperiment workflows.
+
+---
 # 🚀 Key Skills Demonstrated
 
 - Single-cell and single-nucleus RNA-seq analysis
