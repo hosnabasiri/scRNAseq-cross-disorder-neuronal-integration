@@ -61,7 +61,7 @@ This reduced dataset complexity from approximately **288,000 cells to 1,659 clus
 
 By integrating cluster-level representations instead of individual cells, technical variation across studies was substantially reduced while maintaining disease-relevant neuronal organization.
 
-This strategy was inspired by the framework proposed by Zonca et al. (bioRxiv, 2025) and adapted here for cross-disorder neuronal integration.
+This cluster-first integration strategy was adapted from a framework developed in our lab by Zonca et al. (bioRxiv, 2025) and applied here to cross-disorder neuronal integration.
 
 ---
 
