@@ -69,9 +69,9 @@ This cluster-first integration strategy was adapted from a framework developed i
 
 ![Pseudo-bulk](figures/Bulk.png)
 
-Pseudobulk profiles were generated from individual-level neuronal clusters to stabilize downstream analyses.
 
-Batch correction using ComBat-seq reduced study-driven variation while preserving neuronal cell-type structure, resulting in improved cross-study mixing.
+Pseudobulk profiles were generated from individual-level neuronal clusters to support more stable downstream comparisons. After ComBat-seq correction, study-driven separation was reduced while neuronal cell-type structure remained preserved.
+
 
 ---
 
@@ -90,7 +90,6 @@ These results suggest that connectivity structure in the integrated representati
 
 # 💻 Repository Structure
 
-# 🗂 Repository Structure
 
 ```text
 scripts/
