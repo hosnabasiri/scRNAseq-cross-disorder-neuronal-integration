@@ -15,6 +15,8 @@ We tested two integration strategies:
 
 ## 🔹 Strategy 1: Cell-level Integration
 
+
+
 ### Integrated human cortical neuronal dataset.
 
 ![Integration](figures/Dataset-Integration.jpg)
@@ -22,6 +24,7 @@ We tested two integration strategies:
 Human cortical single-cell and single-nucleus RNA-seq datasets from five independent studies were integrated, including datasets from neurodegenerative and neuropsychiatric disorders. The ACTIONet representation shows the combined neuronal landscape used for downstream analysis.
 
 ---
+
 
 ### Cell-type Annotation
 
