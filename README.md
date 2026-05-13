@@ -107,8 +107,8 @@ scripts/
 ├── 02_cell_level_analysis.Rmd
 ├── 03_annotation.Rmd
 ├── 04_individual_clustering.Rmd
-├── 05_signature.Rmd
-├── 06_binding_correlations.Rmd
+├── 05_foldchange_signatures.Rmd
+├── 06_individual_binding_correlations.Rmd
 ├── 07_individual_neuron_object.Rmd
 ├── 08_pseudobulk.Rmd
 └── 09_assortativity.Rmd
